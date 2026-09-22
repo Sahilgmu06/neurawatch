@@ -1,16 +1,53 @@
-# React + Vite
+# NeuraWatch
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Real-Time Intelligent Resource Monitoring System for AI/ML Pipelines
 
-Currently, two official plugins are available:
+NeuraWatch is a professional monitoring interface designed for administrators to monitor AI/ML infrastructure resources and system health through a centralized command center.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Phase 1
 
-## React Compiler
+Phase 1 focuses on the monitoring infrastructure and telemetry collection foundation.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Frontend Features
 
-## Expanding the ESLint configuration
+- Administrator Login
+- Administrator Registration
+- Monitoring Dashboard
+- Resource Monitoring
+- CPU Monitoring
+- Memory Monitoring
+- Disk Monitoring
+- Network Monitoring
+- System Uptime
+- Responsive Monitoring Interface
+- API-ready frontend architecture
+- JWT-ready authentication structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Technology Stack
+
+- React.js
+- Vite
+- JavaScript
+- HTML5
+- CSS3
+- Lucide React
+- REST API-ready architecture
+
+## Project Structure
+
+```text
+src/
+├── auth/
+├── components/
+│   ├── dashboard/
+│   ├── layout/
+│   ├── resources/
+│   ├── analytics/
+│   └── network/
+├── data/
+├── hooks/
+├── pages/
+├── services/
+├── App.jsx
+├── main.jsx
+└── styles.css
