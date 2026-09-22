@@ -1,0 +1,531 @@
+.network-page {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+
+.network-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 26px;
+}
+
+.network-eyebrow {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: var(--nw-cyan);
+
+  font-size: 8px;
+  font-weight: 750;
+
+  letter-spacing: 1.5px;
+}
+
+.network-header h1 {
+  margin: 7px 0 5px;
+
+  color: var(--nw-text-primary);
+
+  font-size: clamp(25px, 3vw, 34px);
+
+  line-height: 1.1;
+
+  letter-spacing: -1px;
+}
+
+.network-header p {
+  margin: 0;
+
+  color: var(--nw-text-muted);
+
+  font-size: 11px;
+
+  line-height: 1.6;
+}
+
+.network-live {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 9px 12px;
+
+  border: 1px solid rgba(34, 197, 94, 0.14);
+
+  border-radius: 8px;
+
+  color: var(--nw-success);
+
+  background: rgba(34, 197, 94, 0.045);
+
+  font-size: 8px;
+  font-weight: 750;
+
+  letter-spacing: 1px;
+}
+
+.network-live span {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: var(--nw-success);
+
+  box-shadow:
+    0 0 8px rgba(34, 197, 94, 0.5);
+
+  animation: networkPulse 2s ease-in-out infinite;
+}
+
+@keyframes networkPulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ========================================
+   SUMMARY CARDS
+   ======================================== */
+
+.network-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 14px;
+
+  margin-bottom: 14px;
+}
+
+.network-card {
+  padding: 19px;
+
+  border: 1px solid var(--nw-border);
+
+  border-radius: var(--nw-radius-lg);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(16, 30, 48, 0.78),
+      rgba(10, 22, 37, 0.72)
+    );
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.08);
+
+  transition:
+    transform var(--nw-transition-fast),
+    border-color var(--nw-transition-fast);
+}
+
+.network-card:hover {
+  transform: translateY(-2px);
+
+  border-color:
+    rgba(56, 189, 248, 0.16);
+}
+
+.network-card-icon {
+  width: 34px;
+  height: 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 15px;
+
+  border: 1px solid rgba(56, 189, 248, 0.13);
+
+  border-radius: 9px;
+
+  color: var(--nw-cyan);
+
+  background: rgba(56, 189, 248, 0.055);
+}
+
+.network-card > span {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: var(--nw-text-muted);
+
+  font-size: 8px;
+  font-weight: 750;
+
+  letter-spacing: 1px;
+}
+
+.network-card strong {
+  display: block;
+
+  color: var(--nw-text-primary);
+
+  font-size: 29px;
+  font-weight: 700;
+
+  letter-spacing: -1.2px;
+}
+
+.network-card small {
+  display: flex;
+  align-items: center;
+
+  gap: 5px;
+
+  margin-top: 10px;
+
+  color: var(--nw-text-muted);
+
+  font-size: 7px;
+}
+
+/* ========================================
+   NETWORK PANEL
+   ======================================== */
+
+.network-panel {
+  overflow: hidden;
+
+  border: 1px solid var(--nw-border);
+
+  border-radius: var(--nw-radius-lg);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(13, 27, 44, 0.76),
+      rgba(8, 19, 32, 0.72)
+    );
+
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.07);
+}
+
+.network-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  padding: 19px 20px;
+
+  border-bottom: 1px solid var(--nw-border);
+}
+
+.network-panel-header span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: var(--nw-text-muted);
+
+  font-size: 7px;
+  font-weight: 750;
+
+  letter-spacing: 1.3px;
+}
+
+.network-panel-header h2 {
+  margin: 0;
+
+  color: var(--nw-text-primary);
+
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.network-status {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  color: var(--nw-success);
+
+  font-size: 7px;
+}
+
+.network-status span {
+  width: 5px;
+  height: 5px;
+
+  margin: 0;
+
+  border-radius: 50%;
+
+  background: currentColor;
+}
+
+/* ========================================
+   TOPOLOGY
+   ======================================== */
+
+.network-topology {
+  position: relative;
+
+  height: 430px;
+
+  margin: 20px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--nw-border);
+
+  border-radius: 12px;
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(56, 189, 248, 0.055),
+      transparent 45%
+    ),
+    rgba(4, 13, 24, 0.45);
+}
+
+.network-node {
+  position: absolute;
+
+  z-index: 2;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 5px;
+
+  width: 145px;
+  height: 82px;
+
+  border: 1px solid var(--nw-border);
+
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(16, 32, 51, 0.96),
+      rgba(8, 20, 34, 0.96)
+    );
+
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.18);
+
+  color: var(--nw-text-secondary);
+}
+
+.network-node strong {
+  color: var(--nw-text-primary);
+
+  font-size: 9px;
+
+  letter-spacing: 0.3px;
+}
+
+.network-node span {
+  color: var(--nw-success);
+
+  font-size: 6px;
+
+  font-weight: 750;
+
+  letter-spacing: 0.8px;
+}
+
+.network-node-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  border: 1px solid rgba(56, 189, 248, 0.2);
+
+  border-radius: 9px;
+
+  color: var(--nw-cyan);
+
+  background: rgba(56, 189, 248, 0.06);
+}
+
+.network-node-main {
+  left: 50%;
+  top: 50%;
+
+  width: 170px;
+  height: 105px;
+
+  transform: translate(-50%, -50%);
+
+  border-color:
+    rgba(56, 189, 248, 0.22);
+}
+
+.network-node-one {
+  left: 8%;
+  top: 13%;
+}
+
+.network-node-two {
+  right: 8%;
+  top: 13%;
+}
+
+.network-node-three {
+  left: 8%;
+  bottom: 13%;
+}
+
+.network-node-four {
+  right: 8%;
+  bottom: 13%;
+}
+
+.network-connection {
+  position: absolute;
+
+  z-index: 1;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(56, 189, 248, 0.4),
+      transparent
+    );
+
+  transform-origin: center;
+}
+
+.connection-one {
+  width: 37%;
+
+  left: 17%;
+
+  top: 34%;
+
+  transform: rotate(17deg);
+}
+
+.connection-two {
+  width: 37%;
+
+  right: 17%;
+
+  top: 34%;
+
+  transform: rotate(-17deg);
+}
+
+.connection-three {
+  width: 37%;
+
+  left: 17%;
+
+  bottom: 34%;
+
+  transform: rotate(-17deg);
+}
+
+.connection-four {
+  width: 37%;
+
+  right: 17%;
+
+  bottom: 34%;
+
+  transform: rotate(17deg);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 900px) {
+  .network-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .network-topology {
+    height: 500px;
+  }
+
+  .network-node-one,
+  .network-node-three {
+    left: 4%;
+  }
+
+  .network-node-two,
+  .network-node-four {
+    right: 4%;
+  }
+}
+
+@media (max-width: 700px) {
+  .network-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .network-live {
+    align-self: flex-start;
+  }
+
+  .network-panel-header {
+    padding: 16px;
+  }
+
+  .network-status {
+    display: none;
+  }
+
+  .network-topology {
+    height: 520px;
+
+    margin: 12px;
+  }
+
+  .network-node {
+    width: 120px;
+  }
+
+  .network-node-main {
+    width: 145px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .network-live span,
+  .network-card {
+    animation: none;
+
+    transition: none;
+  }
+}

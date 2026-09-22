@@ -1,0 +1,321 @@
+:root {
+  /* ========================================
+     NEURAWATCH COLOR SYSTEM
+     ======================================== */
+
+  --nw-bg-primary: #06101c;
+  --nw-bg-secondary: #081421;
+
+  --nw-surface: #0b1726;
+  --nw-surface-elevated: #101e30;
+  --nw-surface-hover: #14263b;
+
+  --nw-border: rgba(148, 163, 184, 0.12);
+  --nw-border-strong: rgba(148, 163, 184, 0.2);
+
+  --nw-cyan: #38bdf8;
+  --nw-cyan-soft: rgba(56, 189, 248, 0.12);
+
+  --nw-violet: #a78bfa;
+  --nw-violet-soft: rgba(167, 139, 250, 0.12);
+
+  --nw-success: #22c55e;
+  --nw-warning: #f59e0b;
+  --nw-danger: #ef4444;
+
+  --nw-text-primary: #e7eef8;
+  --nw-text-secondary: #7f91a8;
+  --nw-text-muted: #52657d;
+
+  /* ========================================
+     TYPOGRAPHY
+     ======================================== */
+
+  --nw-font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  /* ========================================
+     SPACING
+     ======================================== */
+
+  --nw-space-1: 4px;
+  --nw-space-2: 8px;
+  --nw-space-3: 12px;
+  --nw-space-4: 16px;
+  --nw-space-5: 20px;
+  --nw-space-6: 24px;
+  --nw-space-7: 32px;
+  --nw-space-8: 40px;
+  --nw-space-9: 48px;
+  --nw-space-10: 64px;
+
+  /* ========================================
+     RADIUS
+     ======================================== */
+
+  --nw-radius-sm: 8px;
+  --nw-radius-md: 10px;
+  --nw-radius-lg: 14px;
+  --nw-radius-xl: 18px;
+
+  /* ========================================
+     EFFECTS
+     ======================================== */
+
+  --nw-shadow-sm:
+    0 8px 24px rgba(0, 0, 0, 0.18);
+
+  --nw-shadow-md:
+    0 16px 40px rgba(0, 0, 0, 0.25);
+
+  --nw-transition-fast:
+    160ms ease;
+
+  --nw-transition-normal:
+    240ms ease;
+}
+
+
+/* ========================================
+   GLOBAL RESET
+   ======================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--nw-bg-primary);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+
+  font-family: var(--nw-font-family);
+
+  color: var(--nw-text-primary);
+  background: var(--nw-bg-primary);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+
+/* ========================================
+   APPLICATION BACKGROUND
+   ======================================== */
+
+.app {
+  position: relative;
+
+  min-height: 100vh;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(56, 189, 248, 0.08),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 90% 85%,
+      rgba(167, 139, 250, 0.08),
+      transparent 32%
+    ),
+    linear-gradient(
+      135deg,
+      var(--nw-bg-primary),
+      var(--nw-bg-secondary)
+    );
+}
+
+
+/* ========================================
+   SUBTLE GRID
+   ======================================== */
+
+.app::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  opacity: 0.18;
+
+  background-image:
+    linear-gradient(
+      rgba(148, 163, 184, 0.06) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(148, 163, 184, 0.06) 1px,
+      transparent 1px
+    );
+
+  background-size: 48px 48px;
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      black,
+      transparent 90%
+    );
+}
+
+
+/* ========================================
+   TEMPORARY SETUP SCREEN
+   ======================================== */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: var(--nw-space-8);
+}
+
+.app h1 {
+  position: relative;
+  z-index: 1;
+
+  margin: 0;
+
+  font-size: clamp(36px, 5vw, 52px);
+  line-height: 1;
+
+  font-weight: 800;
+
+  letter-spacing: -1.8px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--nw-cyan),
+      var(--nw-violet)
+    );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  color: transparent;
+}
+
+.app p {
+  position: relative;
+  z-index: 1;
+
+  margin: var(--nw-space-3) 0 0;
+
+  color: var(--nw-text-secondary);
+
+  font-size: 13px;
+
+  font-weight: 500;
+
+  letter-spacing: 0.6px;
+}
+
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+:focus-visible {
+  outline: 2px solid var(--nw-cyan);
+  outline-offset: 3px;
+}
+
+
+/* ========================================
+   SELECTION
+   ======================================== */
+
+::selection {
+  background: rgba(56, 189, 248, 0.25);
+  color: var(--nw-text-primary);
+}
+
+
+/* ========================================
+   SCROLLBAR
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--nw-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1b3048;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #294562;
+}
+
+
+/* ========================================
+   RESPONSIVE BASE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .app {
+    padding: var(--nw-space-6);
+  }
+}
+
+@media (max-width: 480px) {
+  .app {
+    padding: var(--nw-space-4);
+  }
+}
