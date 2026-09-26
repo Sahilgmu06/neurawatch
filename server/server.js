@@ -84,7 +84,7 @@ const startServer = async () => {
   startTelemetryScheduler();
   startRealtimeMonitoring();
 
-  server.listen(PORT, () => {
+  server.listen(PORT, "0.0.0.0", () => {
     console.log(
       `NeuraWatch backend running on port ${PORT}`
     );
