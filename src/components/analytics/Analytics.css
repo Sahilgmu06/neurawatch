@@ -5,8 +5,8 @@
 }
 
 /* ========================================
-   HEADER
-   ======================================== */
+HEADER
+======================================== */
 
 .analytics-header {
   display: flex;
@@ -100,8 +100,8 @@
 }
 
 /* ========================================
-   CARDS
-   ======================================== */
+CARDS
+======================================== */
 
 .analytics-grid {
   display: grid;
@@ -220,8 +220,8 @@
 }
 
 /* ========================================
-   PANEL
-   ======================================== */
+PANEL
+======================================== */
 
 .analytics-panel {
   min-width: 0;
@@ -286,12 +286,48 @@
 
   color: var(--nw-text-muted);
 
+  background: rgba(8, 19, 32, 0.65);
+
+  font-family: inherit;
+
   font-size: 7px;
+
+  outline: none;
+
+  cursor: pointer;
+}
+
+.analytics-period:focus {
+  border-color: rgba(56, 189, 248, 0.3);
 }
 
 /* ========================================
-   CHART
-   ======================================== */
+STATES
+======================================== */
+
+.analytics-state {
+  min-height: 330px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+
+  color: var(--nw-text-muted);
+
+  font-size: 10px;
+
+  text-align: center;
+}
+
+.analytics-error {
+  color: #fca5a5;
+}
+
+/* ========================================
+CHART
+======================================== */
 
 .analytics-chart {
   position: relative;
@@ -309,6 +345,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  pointer-events: none;
 }
 
 .analytics-chart-lines span {
@@ -318,43 +356,45 @@
   background: rgba(148, 163, 184, 0.06);
 }
 
-.analytics-chart-line {
+.analytics-svg {
   position: absolute;
 
+  top: 25px;
   left: 0;
-  right: 0;
 
-  height: 3px;
+  width: 100%;
+  height: calc(100% - 65px);
 
-  border-radius: 10px;
-
-  transform-origin: left center;
+  overflow: visible;
 }
 
-.analytics-line-one {
-  top: 48%;
+.analytics-svg-line {
+  fill: none;
 
-  background: var(--nw-cyan);
+  vector-effect: non-scaling-stroke;
 
-  box-shadow:
-    0 0 12px rgba(56, 189, 248, 0.4);
+  stroke-width: 0.8;
 
-  transform:
-    rotate(-2deg)
-    skewY(-3deg);
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.analytics-line-two {
-  top: 63%;
+.analytics-svg-cpu {
+  stroke: var(--nw-cyan);
 
-  background: var(--nw-violet);
+  filter:
+    drop-shadow(
+      0 0 5px rgba(56, 189, 248, 0.45)
+    );
+}
 
-  box-shadow:
-    0 0 12px rgba(167, 139, 250, 0.35);
+.analytics-svg-memory {
+  stroke: var(--nw-violet);
 
-  transform:
-    rotate(-1deg)
-    skewY(2deg);
+  filter:
+    drop-shadow(
+      0 0 5px rgba(167, 139, 250, 0.4)
+    );
 }
 
 .analytics-chart-labels {
@@ -367,14 +407,24 @@
   display: flex;
   justify-content: space-between;
 
+  gap: 8px;
+
   color: var(--nw-text-muted);
 
   font-size: 7px;
+
+  overflow: hidden;
+}
+
+.analytics-chart-labels span {
+  min-width: 0;
+
+  white-space: nowrap;
 }
 
 /* ========================================
-   LEGEND
-   ======================================== */
+LEGEND
+======================================== */
 
 .analytics-legend {
   display: flex;
@@ -418,8 +468,8 @@
 }
 
 /* ========================================
-   RESPONSIVE
-   ======================================== */
+RESPONSIVE
+======================================== */
 
 @media (max-width: 900px) {
   .analytics-grid {
@@ -446,6 +496,10 @@
     height: 260px;
 
     margin: 0 12px;
+  }
+
+  .analytics-state {
+    min-height: 260px;
   }
 
   .analytics-legend {

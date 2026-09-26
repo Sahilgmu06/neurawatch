@@ -49,9 +49,17 @@ export const api = {
   getHistoricalMetrics: (range = "24h") =>
     request(`/metrics/history?range=${range}`),
 
-  getServerStatus: () => request("/server/status"),
+  getServerStatus: () =>
+    request("/server/status"),
 
-  getMonitoringLogs: () => request("/logs"),
+  getMonitoringLogs: () =>
+    request("/logs"),
+
+  getApmStatus: () =>
+    request("/apm/status"),
+
+  getAnalytics: (range = "daily") =>
+    request(`/analytics?range=${range}`),
 };
 
 export default api;

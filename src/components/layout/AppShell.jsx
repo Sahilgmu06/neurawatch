@@ -2,6 +2,7 @@ import {
   Activity,
   BarChart3,
   Cpu,
+  FileClock,
   Gauge,
   LogOut,
   Menu,
@@ -19,6 +20,7 @@ import Dashboard from "../dashboard/Dashboard";
 import Resources from "../resources/Resources";
 import Analytics from "../analytics/Analytics";
 import NetworkPage from "../network/Network";
+import Logs from "../logs/Logs";
 
 function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -46,6 +48,11 @@ function AppShell() {
       label: "Network",
       icon: Network,
     },
+    {
+      id: "logs",
+      label: "Logs & Events",
+      icon: FileClock,
+    },
   ];
 
   const handleNavigation = (page) => {
@@ -64,6 +71,9 @@ function AppShell() {
       case "network":
         return <NetworkPage />;
 
+      case "logs":
+        return <Logs />;
+
       case "overview":
       default:
         return <Dashboard />;
@@ -80,6 +90,9 @@ function AppShell() {
 
       case "network":
         return "Network";
+
+      case "logs":
+        return "Logs & Events";
 
       case "overview":
       default:

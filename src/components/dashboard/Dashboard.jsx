@@ -1,3 +1,5 @@
+import { useEffect, useMemo, useState } from "react";
+
 import {
   Activity,
   ArrowDownRight,
@@ -11,49 +13,12 @@ import {
   MemoryStick,
   Network,
   Server,
-  Zap,
 } from "lucide-react";
 
-import "./Dashboard.css";
+import socket from "../../services/socket";
+import api from "../../services/api";
 
-const resourceCards = [
-  {
-    label: "CPU UTILIZATION",
-    value: "42.8",
-    unit: "%",
-    status: "NORMAL",
-    trend: "+3.2%",
-    trendType: "up",
-    icon: Cpu,
-  },
-  {
-    label: "MEMORY USAGE",
-    value: "68.4",
-    unit: "%",
-    status: "NORMAL",
-    trend: "+1.8%",
-    trendType: "up",
-    icon: MemoryStick,
-  },
-  {
-    label: "GPU UTILIZATION",
-    value: "31.2",
-    unit: "%",
-    status: "NORMAL",
-    trend: "-4.6%",
-    trendType: "down",
-    icon: Zap,
-  },
-  {
-    label: "NETWORK THROUGHPUT",
-    value: "1.8",
-    unit: "GB/s",
-    status: "ACTIVE",
-    trend: "+8.4%",
-    trendType: "up",
-    icon: Network,
-  },
-];
+import "./Dashboard.css";
 
 const pipelines = [
   {
@@ -79,7 +44,361 @@ const pipelines = [
   },
 ];
 
+const MAX_CHART_POINTS = 12;
+
 function Dashboard() {
+  const [metrics, setMetrics] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [history, setHistory] = useState([]);
+
+  /*
+   * Load current metrics immediately when the dashboard opens.
+   */
+  useEffect(() => {
+    let mounted = true;
+
+    const loadCurrentMetrics = async () => {
+      try {
+        const response = await api.getCurrentMetrics();
+
+        if (!mounted) return;
+
+        const currentMetrics = response?.data || response;
+
+        setMetrics(currentMetrics);
+        setLastUpdated(new Date());
+
+        setHistory((previous) => {
+          const next = [
+            ...previous,
+            {
+              timestamp:
+                currentMetrics?.timestamp ||
+                new Date().toISOString(),
+              cpu: Number(
+                currentMetrics?.cpu?.usage ?? 0
+              ),
+              memory: Number(
+                currentMetrics?.memory?.usage ?? 0
+              ),
+            },
+          ];
+
+          return next.slice(-MAX_CHART_POINTS);
+        });
+      } catch (error) {
+        console.error(
+          "Failed to load current metrics:",
+          error
+        );
+      }
+    };
+
+    loadCurrentMetrics();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  /*
+   * Receive live metrics through Socket.IO.
+   */
+  useEffect(() => {
+    const handleConnect = () => {
+      setSocketConnected(true);
+    };
+
+    const handleDisconnect = () => {
+      setSocketConnected(false);
+    };
+
+    const handleMetricsUpdate = (data) => {
+      setMetrics(data);
+      setLastUpdated(new Date());
+
+      setHistory((previous) => {
+        const next = [
+          ...previous,
+          {
+            timestamp:
+              data?.timestamp ||
+              new Date().toISOString(),
+            cpu: Number(data?.cpu?.usage ?? 0),
+            memory: Number(
+              data?.memory?.usage ?? 0
+            ),
+          },
+        ];
+
+        return next.slice(-MAX_CHART_POINTS);
+      });
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    socket.on(
+      "metrics:update",
+      handleMetricsUpdate
+    );
+
+    if (socket.connected) {
+      setSocketConnected(true);
+    }
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+      socket.off(
+        "metrics:update",
+        handleMetricsUpdate
+      );
+    };
+  }, []);
+
+  const cpuUsage = Number(
+    metrics?.cpu?.usage ?? 0
+  );
+
+  const memoryUsage = Number(
+    metrics?.memory?.usage ?? 0
+  );
+
+  const diskUsage = Number(
+    metrics?.disk?.usage ?? 0
+  );
+
+  const networkRx = Number(
+    metrics?.network?.rxBytes ?? 0
+  );
+
+  const networkTx = Number(
+    metrics?.network?.txBytes ?? 0
+  );
+
+  const networkThroughput = (
+    (networkRx + networkTx) /
+    (1024 * 1024 * 1024)
+  ).toFixed(2);
+
+  const getResourceStatus = (
+    value,
+    warning,
+    critical
+  ) => {
+    if (value > critical) return "CRITICAL";
+    if (value > warning) return "WARNING";
+    return "NORMAL";
+  };
+
+  const cpuStatus = getResourceStatus(
+    cpuUsage,
+    70,
+    85
+  );
+
+  const memoryStatus = getResourceStatus(
+    memoryUsage,
+    70,
+    80
+  );
+
+  const diskStatus = getResourceStatus(
+    diskUsage,
+    80,
+    90
+  );
+
+  const resourceCards = [
+    {
+      label: "CPU UTILIZATION",
+      value: cpuUsage.toFixed(1),
+      unit: "%",
+      status: cpuStatus,
+      trend: "LIVE",
+      trendType: "up",
+      icon: Cpu,
+    },
+    {
+      label: "MEMORY USAGE",
+      value: memoryUsage.toFixed(1),
+      unit: "%",
+      status: memoryStatus,
+      trend: "LIVE",
+      trendType: "up",
+      icon: MemoryStick,
+    },
+    {
+      label: "DISK UTILIZATION",
+      value: diskUsage.toFixed(1),
+      unit: "%",
+      status: diskStatus,
+      trend: "LIVE",
+      trendType: "up",
+      icon: HardDrive,
+    },
+    {
+      label: "NETWORK THROUGHPUT",
+      value: networkThroughput,
+      unit: "GB",
+      status: socketConnected
+        ? "ACTIVE"
+        : "OFFLINE",
+      trend: socketConnected
+        ? "LIVE"
+        : "OFFLINE",
+      trendType: "up",
+      icon: Network,
+    },
+  ];
+
+  const systemHealth =
+    cpuStatus === "CRITICAL" ||
+    memoryStatus === "CRITICAL" ||
+    diskStatus === "CRITICAL"
+      ? "Critical"
+      : cpuStatus === "WARNING" ||
+        memoryStatus === "WARNING" ||
+        diskStatus === "WARNING"
+      ? "Warning"
+      : "Healthy";
+
+  const healthScore =
+    systemHealth === "Critical"
+      ? 60
+      : systemHealth === "Warning"
+      ? 80
+      : 98;
+
+  const chartData = useMemo(() => {
+    if (history.length > 0) {
+      return history;
+    }
+
+    return [
+      {
+        timestamp: new Date().toISOString(),
+        cpu: cpuUsage,
+        memory: memoryUsage,
+      },
+    ];
+  }, [history, cpuUsage, memoryUsage]);
+
+  const createChartPath = (key) => {
+    if (chartData.length === 0) {
+      return "";
+    }
+
+    const width = 700;
+    const height = 260;
+
+    if (chartData.length === 1) {
+      const value = Math.max(
+        0,
+        Math.min(
+          100,
+          Number(chartData[0][key] || 0)
+        )
+      );
+
+      const y =
+        height - (value / 100) * height;
+
+      return `M0 ${y} L${width} ${y}`;
+    }
+
+    return chartData
+      .map((point, index) => {
+        const value = Math.max(
+          0,
+          Math.min(
+            100,
+            Number(point[key] || 0)
+          )
+        );
+
+        const x =
+          (index / (chartData.length - 1)) *
+          width;
+
+        const y =
+          height - (value / 100) * height;
+
+        return `${
+          index === 0 ? "M" : "L"
+        } ${x} ${y}`;
+      })
+      .join(" ");
+  };
+
+  const createAreaPath = (key) => {
+    if (chartData.length === 0) {
+      return "";
+    }
+
+    const linePath = createChartPath(key);
+
+    return `${linePath} L 700 260 L 0 260 Z`;
+  };
+
+  const cpuChartPath =
+    createChartPath("cpu");
+
+  const memoryChartPath =
+    createChartPath("memory");
+
+  const cpuAreaPath =
+    createAreaPath("cpu");
+
+  const memoryAreaPath =
+    createAreaPath("memory");
+
+  const chartLabels = useMemo(() => {
+    if (chartData.length === 0) {
+      return [];
+    }
+
+    return chartData.map((point) => {
+      const date = new Date(
+        point.timestamp
+      );
+
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    });
+  }, [chartData]);
+
+  const latestPoint =
+    chartData[chartData.length - 1];
+
+  const latestCpu =
+    Number(latestPoint?.cpu ?? 0);
+
+  const latestMemory =
+    Number(latestPoint?.memory ?? 0);
+
+  const latestCpuY =
+    260 -
+    (Math.max(
+      0,
+      Math.min(100, latestCpu)
+    ) /
+      100) *
+      260;
+
+  const latestMemoryY =
+    260 -
+    (Math.max(
+      0,
+      Math.min(100, latestMemory)
+    ) /
+      100) *
+      260;
+
   return (
     <div className="dashboard">
       {/* ========================================
@@ -89,21 +408,37 @@ function Dashboard() {
       <section className="dashboard-header">
         <div>
           <div className="dashboard-eyebrow">
-            <Activity size={13} strokeWidth={2} />
+            <Activity
+              size={13}
+              strokeWidth={2}
+            />
+
             LIVE INFRASTRUCTURE MONITORING
           </div>
 
           <h1>System Overview</h1>
 
           <p>
-            Monitor your AI/ML infrastructure and
-            pipeline performance in real time.
+            Monitor your AI/ML infrastructure
+            and pipeline performance in real
+            time.
           </p>
         </div>
 
         <div className="dashboard-header-status">
-          <span className="dashboard-status-dot" />
-          <span>MONITORING ACTIVE</span>
+          <span
+            className={`dashboard-status-dot ${
+              socketConnected
+                ? ""
+                : "dashboard-status-dot-offline"
+            }`}
+          />
+
+          <span>
+            {socketConnected
+              ? "MONITORING ACTIVE"
+              : "CONNECTING..."}
+          </span>
         </div>
       </section>
 
@@ -139,7 +474,9 @@ function Dashboard() {
               </div>
 
               <div className="resource-value">
-                <strong>{resource.value}</strong>
+                <strong>
+                  {resource.value}
+                </strong>
 
                 <span>{resource.unit}</span>
               </div>
@@ -152,17 +489,22 @@ function Dashboard() {
                       : ""
                   }`}
                 >
-                  {resource.trendType === "down" ? (
-                    <ArrowDownRight size={13} />
+                  {resource.trendType ===
+                  "down" ? (
+                    <ArrowDownRight
+                      size={13}
+                    />
                   ) : (
-                    <ArrowUpRight size={13} />
+                    <ArrowUpRight
+                      size={13}
+                    />
                   )}
 
                   {resource.trend}
                 </span>
 
                 <span className="resource-period">
-                  vs last 5 min
+                  live telemetry
                 </span>
               </div>
             </article>
@@ -184,12 +526,17 @@ function Dashboard() {
                 PERFORMANCE
               </span>
 
-              <h2>Resource Utilization</h2>
+              <h2>
+                Resource Utilization
+              </h2>
             </div>
 
             <div className="panel-live-indicator">
               <span />
-              LIVE
+
+              {socketConnected
+                ? "LIVE"
+                : "OFFLINE"}
             </div>
           </div>
 
@@ -254,47 +601,89 @@ function Dashboard() {
 
                 <path
                   className="chart-area-fill chart-area-fill-primary"
-                  d="M0 155 C55 138, 70 170, 115 142 S170 118, 210 135 S270 110, 315 126 S370 150, 415 116 S470 92, 520 112 S580 83, 625 102 S670 78, 700 91 L700 260 L0 260 Z"
+                  d={cpuAreaPath}
                 />
 
                 <path
                   className="chart-line chart-line-primary"
-                  d="M0 155 C55 138, 70 170, 115 142 S170 118, 210 135 S270 110, 315 126 S370 150, 415 116 S470 92, 520 112 S580 83, 625 102 S670 78, 700 91"
+                  d={cpuChartPath}
                 />
 
                 <path
                   className="chart-area-fill chart-area-fill-secondary"
-                  d="M0 194 C55 184, 80 205, 125 180 S180 165, 225 182 S280 160, 330 174 S385 186, 430 160 S485 148, 530 165 S585 138, 635 153 S675 132, 700 145 L700 260 L0 260 Z"
+                  d={memoryAreaPath}
                 />
 
                 <path
                   className="chart-line chart-line-secondary"
-                  d="M0 194 C55 184, 80 205, 125 180 S180 165, 225 182 S280 160, 330 174 S385 186, 430 160 S485 148, 530 165 S585 138, 635 153 S675 132, 700 145"
+                  d={memoryChartPath}
                 />
 
                 <circle
                   className="chart-point-primary"
                   cx="700"
-                  cy="91"
+                  cy={latestCpuY}
                   r="4"
                 />
 
                 <circle
                   className="chart-point-secondary"
                   cx="700"
-                  cy="145"
+                  cy={latestMemoryY}
                   r="4"
                 />
               </svg>
 
               <div className="chart-x-axis">
-                <span>12:00</span>
-                <span>12:05</span>
-                <span>12:10</span>
-                <span>12:15</span>
-                <span>12:20</span>
-                <span>12:25</span>
-                <span>12:30</span>
+                {chartLabels.length > 0 ? (
+                  <>
+                    <span>
+                      {chartLabels[0]}
+                    </span>
+
+                    {chartLabels.length > 2 && (
+                      <span>
+                        {
+                          chartLabels[
+                            Math.floor(
+                              chartLabels.length /
+                                3
+                            )
+                          ]
+                        }
+                      </span>
+                    )}
+
+                    {chartLabels.length > 4 && (
+                      <span>
+                        {
+                          chartLabels[
+                            Math.floor(
+                              (chartLabels.length *
+                                2) /
+                                3
+                            )
+                          ]
+                        }
+                      </span>
+                    )}
+
+                    <span>
+                      {
+                        chartLabels[
+                          chartLabels.length - 1
+                        ]
+                      }
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span>--:--</span>
+                    <span>--:--</span>
+                    <span>--:--</span>
+                    <span>--:--</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -311,7 +700,9 @@ function Dashboard() {
             </span>
 
             <span className="chart-update">
-              Updated 3 sec ago
+              {lastUpdated
+                ? `Updated ${lastUpdated.toLocaleTimeString()}`
+                : "Waiting for telemetry..."}
             </span>
           </div>
         </article>
@@ -337,17 +728,23 @@ function Dashboard() {
           <div className="health-score">
             <div className="health-score-ring">
               <div className="health-score-inner">
-                <strong>98</strong>
+                <strong>
+                  {healthScore}
+                </strong>
+
                 <span>/100</span>
               </div>
             </div>
 
             <div className="health-score-info">
-              <strong>Excellent</strong>
+              <strong>
+                {systemHealth}
+              </strong>
 
               <span>
-                All monitored systems are operating
-                within normal parameters.
+                Current system status based on
+                monitored resource
+                thresholds.
               </span>
             </div>
           </div>
@@ -360,10 +757,17 @@ function Dashboard() {
 
               <div>
                 <strong>Compute</strong>
-                <span>4 instances active</span>
+
+                <span>
+                  CPU{" "}
+                  {cpuUsage.toFixed(1)}%
+                  usage
+                </span>
               </div>
 
-              <b>99%</b>
+              <b>
+                {cpuUsage.toFixed(0)}%
+              </b>
             </div>
 
             <div className="health-item">
@@ -373,10 +777,17 @@ function Dashboard() {
 
               <div>
                 <strong>Storage</strong>
-                <span>1.8 TB available</span>
+
+                <span>
+                  Disk{" "}
+                  {diskUsage.toFixed(1)}%
+                  used
+                </span>
               </div>
 
-              <b>96%</b>
+              <b>
+                {diskUsage.toFixed(0)}%
+              </b>
             </div>
 
             <div className="health-item">
@@ -386,10 +797,19 @@ function Dashboard() {
 
               <div>
                 <strong>Network</strong>
-                <span>Low latency detected</span>
+
+                <span>
+                  {socketConnected
+                    ? "Live telemetry received"
+                    : "Waiting for telemetry"}
+                </span>
               </div>
 
-              <b>98%</b>
+              <b>
+                {socketConnected
+                  ? "LIVE"
+                  : "OFFLINE"}
+              </b>
             </div>
           </div>
         </article>
@@ -434,7 +854,9 @@ function Dashboard() {
                   <BrainCircuit size={15} />
                 </div>
 
-                <strong>{pipeline.name}</strong>
+                <strong>
+                  {pipeline.name}
+                </strong>
               </div>
 
               <span className="pipeline-model">
@@ -449,6 +871,7 @@ function Dashboard() {
                 }`}
               >
                 <i />
+
                 {pipeline.status}
               </span>
 
@@ -483,12 +906,12 @@ function Dashboard() {
       <div className="dashboard-footer">
         <span>
           <Gauge size={12} />
-          Monitoring interval: 3 seconds
+          Monitoring interval: 5 seconds
         </span>
 
         <span>
           <HardDrive size={12} />
-          Data source: System telemetry
+          Data source: Live system telemetry
         </span>
       </div>
     </div>
