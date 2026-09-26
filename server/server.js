@@ -9,20 +9,22 @@ import authRoutes from "./routes/authRoutes.js";
 import telemetryRoutes from "./routes/telemetryRoutes.js";
 import serverRoutes from "./routes/serverRoutes.js";
 import logRoutes from "./routes/logRoutes.js";
-import startTelemetryScheduler from "./services/telemetryScheduler.js";
-import getSystemMetrics from "./services/systemMetrics.js";
 import apmRoutes from "./routes/apmRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
+import startTelemetryScheduler from "./services/telemetryScheduler.js";
+import getSystemMetrics from "./services/systemMetrics.js";
 
 dotenv.config();
 
 const app = express();
-
 const server = http.createServer(app);
+
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "http://localhost:5173";
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: FRONTEND_URL,
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -32,7 +34,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: FRONTEND_URL,
     credentials: true,
   })
 );
@@ -55,10 +57,10 @@ app.use("/api/apm", apmRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
 io.on("connection", (socket) => {
-  console.log(`Socket.IO client connected: ${socket.id}`);
+  console.log(`Socket connected: ${socket.id}`);
 
   socket.on("disconnect", () => {
-    console.log(`Socket.IO client disconnected: ${socket.id}`);
+    console.log(`Socket disconnected: ${socket.id}`);
   });
 });
 
@@ -66,11 +68,10 @@ const startRealtimeMonitoring = () => {
   setInterval(async () => {
     try {
       const metrics = await getSystemMetrics();
-
       io.emit("metrics:update", metrics);
     } catch (error) {
       console.error(
-        "Real-time metrics error:",
+        "Real-time monitoring error:",
         error.message
       );
     }
@@ -81,14 +82,15 @@ const startServer = async () => {
   await connectDB();
 
   startTelemetryScheduler();
-
   startRealtimeMonitoring();
 
   server.listen(PORT, () => {
     console.log(
       `NeuraWatch backend running on port ${PORT}`
     );
-
+    console.log(
+      `CORS/Socket.IO frontend origin: ${FRONTEND_URL}`
+    );
     console.log(
       "Socket.IO real-time monitoring started"
     );
